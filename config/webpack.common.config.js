@@ -4,7 +4,7 @@ const path = require('path');
 const webpack = require('webpack');
 const webpackMerge = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const myip = require('my-ip')();
+let myip = require('my-ip')();
 /**
  * 用户定义
  */
@@ -12,6 +12,7 @@ let {
 	port
 } = require('./user.config') || {};
 if (process.env.NODE_ENV === 'development') {
+	myip = 'localhost';
 	port = port || 8989;
 } else {
 	port = 8001;
@@ -80,7 +81,6 @@ const config = {
 			use: [
 				'style-loader',
 				'css-loader',
-				postcssLoader,
 				{
 					loader: "less-loader",
 					options: {
