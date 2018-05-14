@@ -29,6 +29,15 @@ const APP_ROOT = process.cwd();
 
 const ENV_IS_DEV = process.env.NODE_ENV === 'development';
 
+const postcssLoader = {
+	loader: 'postcss-loader',
+	options: {
+		config: {
+			path: path.resolve(APP_ROOT, 'config/postcss.config.js')
+		}
+	}
+};
+
 const config = {
 	resolve: { // 重定向路径
 		mainFiles: ['index.web', 'index'],
@@ -60,7 +69,7 @@ const config = {
 		},
 		{
 			test: /\.(css|scss)$/,
-			use: ['style-loader', 'css-loader', 'sass-loader'],
+			use: ['style-loader', 'css-loader', 'sass-loader', postcssLoader],
 			include: [
 				path.resolve(APP_ROOT, "node_modules"),
 				path.resolve(APP_ROOT, "src/")
@@ -71,6 +80,7 @@ const config = {
 			use: [
 				'style-loader',
 				'css-loader',
+				postcssLoader,
 				{
 					loader: "less-loader",
 					options: {
