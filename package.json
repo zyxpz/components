@@ -8,7 +8,13 @@
     "serve": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server --config ./config/webpack.dev.config.js --color --progress --hot",
     "prompt": "node ./config/prompt.config.js",
     "lint": "esw ./config/*.config.* ./src/**/*.js --fix --watch &",
-    "all": "npm run lint && npm run serve"
+    "all": "npm run lint && npm run serve",
+    "build:dev": "cross-env MINI_JS=false npm run prod",
+    "build:prod": "cross-env MINI_JS=true npm run prod",
+    "prod": "npm run remove && webpack --config ./config/webpack.prod.config.js --color --progress",
+    "remove": "rm -rf ./dist",
+    "compile": "rm -rf ./lib && babel src --out-dir lib",
+    "publish": "npm run compile && npm puhlish"
   },
   "entry": {},
   "author": "mido",
@@ -18,6 +24,7 @@
     "react-dom": "^16.3.2"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.3",
     "babel-loader": "^7.1.4",

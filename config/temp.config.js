@@ -15,7 +15,6 @@ const getEntryFileContent = (entryPath, fullpath) => {
 	relativePath = upath.normalize(relativePath);
 	let contents = '';
 	contents += `\nimport React, { Component } from 'react';\n`;
-	contents += `\nimport PropTypes from 'prop-types';\n`;
 	contents += `\nimport { render } from 'react-dom';\n`;
 	contents += `\nimport App from '${relativePath}';\n`;
 	contents += `render(<App />, document.getElementById('pages'));\n`;
@@ -71,9 +70,17 @@ const getHtmlConfig = () => {
 
 	foundScripts.forEach(fullpath => {
 		fullpath = upath.normalize(fullpath);
-		let chunk = fullpath.replace(/temp\//, '').replace(/^(.*)\.(js|jsx)$/, '$1');
-		let filename = path.join(APP_ROOT, fullpath.replace(/temp\//, 'dist/').replace(/\.(js|jsx)/, '.html'));
-		openPage[chunk] = path.join(fullpath.replace(/temp\//, '/').replace(/\.(js|jsx)/, '.html'));
+		let chunk, filename;
+		if (suffix === 'jsx') {
+			chunk = fullpath.replace(/temp\//, '').replace(/^(.*)\.jsx$/, '$1');
+			filename = path.join(APP_ROOT, fullpath.replace(/temp\//, 'dist/').replace(/\.jsx/, '.html'));
+			openPage[chunk] = path.join(fullpath.replace(/temp\//, '/').replace(/\.jsx/, '.html'));
+		} else {
+			chunk = fullpath.replace(/temp\//, '').replace(/^(.*)\.js$/, '$1');
+			filename = path.join(APP_ROOT, fullpath.replace(/temp\//, 'dist/').replace(/\.js/, '.html'));
+			openPage[chunk] = path.join(fullpath.replace(/temp\//, '/').replace(/\.js/, '.html'));
+		}
+		
 		arr.push(
 			new HtmlWebpackPlugin({
 				template: path.resolve(APP_ROOT, 'templates/tpl.html'),
