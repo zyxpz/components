@@ -23,7 +23,7 @@ const getEntryFileContent = (entryPath, fullpath) => {
 const getEntryFile = (dir) => {
 	dir = dir || '.';
 	const directory = path.join(APP_ROOT, 'src', dir);
-  
+
 	// 将返回一个包含“指定目录下所有文件名称”的数组对象
 	fs.readdirSync(directory).forEach((file) => {
 		// 文件地址
@@ -33,9 +33,9 @@ const getEntryFile = (dir) => {
 		const stat = fs.statSync(fullpath);
 		// 获取文件后缀名
 		const extname = path.extname(fullpath);
-		if (stat.isFile() 
-			&& (extname === '.jsx' || extname === '.js') 
-			&& ( !component || fullpath.includes(component))
+		if (stat.isFile()
+			&& (extname === '.jsx' || extname === '.js')
+			&& (!component || fullpath.includes(component))
 			&& paths.length >= 2 && paths[paths.length - 2] === 'examples'
 		) {
 			// 获取文件名字
@@ -54,33 +54,52 @@ const getEntryFile = (dir) => {
 };
 getEntryFile();
 
+process.env.DOC = 'doc';
+
 const getHtmlConfig = () => {
 	let foundScripts;
 	let suffix;
 
-	if (glob.sync(`temp/*/*.jsx`, {}).length) {
-		foundScripts = glob.sync(`temp/${component ? component : '*' }/*.jsx`, {});
-		suffix = 'jsx';
+	if (process.env.DOC === 'doc') {
+		foundScripts = glob.sync(`examples/*/*.md`, {});
+		suffix = 'md';
 	} else {
-		foundScripts = glob.sync(`temp/${component ? component : '*' }/*.js`, {});
-		suffix = 'js';
+		if (glob.sync(`temp/*/*.jsx`, {}).length) {
+			foundScripts = glob.sync(`temp/${component ? component : '*'}/*.jsx`, {});
+			suffix = 'jsx';
+		} else {
+			foundScripts = glob.sync(`temp/${component ? component : '*'}/*.js`, {});
+			suffix = 'js';
+		}
 	}
 
-	const arr = [];
 
+	const arr = [];
+	console.log(foundScripts, suffix);
 	foundScripts.forEach(fullpath => {
 		fullpath = upath.normalize(fullpath);
 		let chunk, filename;
-		if (suffix === 'jsx') {
-			chunk = fullpath.replace(/temp\//, '').replace(/^(.*)\.jsx$/, '$1');
-			filename = path.join(APP_ROOT, fullpath.replace(/temp\//, 'dist/').replace(/\.jsx/, '.html'));
-			openPage[chunk] = path.join(fullpath.replace(/temp\//, '/').replace(/\.jsx/, '.html'));
-		} else {
-			chunk = fullpath.replace(/temp\//, '').replace(/^(.*)\.js$/, '$1');
-			filename = path.join(APP_ROOT, fullpath.replace(/temp\//, 'dist/').replace(/\.js/, '.html'));
-			openPage[chunk] = path.join(fullpath.replace(/temp\//, '/').replace(/\.js/, '.html'));
+		switch (suffix) {
+			case 'jsx':
+				chunk = fullpath.replace(/temp\//, '').replace(/^(.*)\.jsx$/, '$1');
+				filename = path.join(APP_ROOT, fullpath.replace(/temp\//, 'dist/').replace(/\.jsx/, '.html'));
+				openPage[chunk] = path.join(fullpath.replace(/temp\//, '/').replace(/\.jsx/, '.html'));
+				break;
+			case 'js':
+				chunk = fullpath.replace(/temp\//, '').replace(/^(.*)\.js$/, '$1');
+				filename = path.join(APP_ROOT, fullpath.replace(/temp\//, 'dist/').replace(/\.js/, '.html'));
+				openPage[chunk] = path.join(fullpath.replace(/temp\//, '/').replace(/\.js/, '.html'));
+				break;
+			case 'md':
+				chunk = fullpath.replace(/examples\//, '').replace(/^(.*)\.md$/, '$1');
+				filename = path.join(APP_ROOT, fullpath.replace(/examples\//, 'dist/').replace(/\.md/, '.html'));
+				openPage[chunk] = path.join(fullpath.replace(/teexamplesmp\//, '/').replace(/\.md/, '.html'));
+				console.log(111);
+				break;
+			default:
+				break;
 		}
-		
+
 		arr.push(
 			new HtmlWebpackPlugin({
 				template: path.resolve(APP_ROOT, 'templates/tpl.html'),
@@ -101,7 +120,7 @@ const getHtmlConfig = () => {
 	);
 	return arr;
 };
-
+getHtmlConfig();
 module.exports = {
 	entry,
 	openPage,
