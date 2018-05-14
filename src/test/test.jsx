@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import './test.less';
 
 export default class Test extends Component {
 	constructor(props) {
@@ -11,7 +12,7 @@ export default class Test extends Component {
 
   render() {
   	return (
-  		<div onClick={this.handleClick}>点我弹alert</div>
+  		<div className="btn" onClick={this.handleClick}>点我弹alert</div>
   	);
   }
 }

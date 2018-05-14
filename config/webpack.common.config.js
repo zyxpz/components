@@ -8,7 +8,14 @@ const myip = require('my-ip')();
 /**
  * 用户定义
  */
-const { port } = require('./user.config') || {};
+let {
+	port
+} = require('./user.config') || {};
+if (process.env.NODE_ENV === 'development') {
+	port = port || 8989;
+} else {
+	port = 8001;
+}
 /**
  * 入口文件
  */
@@ -23,12 +30,11 @@ const APP_ROOT = process.cwd();
 const ENV_IS_DEV = process.env.NODE_ENV === 'development';
 
 const config = {
-	resolve: {// 重定向路径
+	resolve: { // 重定向路径
 		mainFiles: ['index.web', 'index'],
 		modules: [path.resolve(APP_ROOT, 'src'), 'node_modules'],
 		extensions: ['.web.tsx', '.web.ts', '.web.jsx', '.web.js', '.ts', '.tsx', '.js', '.jsx', '.json', '.css', '.less', '.scss'],
-		alias: {
-		}
+		alias: {}
 	},
 	entry: Object.assign({}, entry),
 	output: {
