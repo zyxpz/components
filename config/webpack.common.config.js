@@ -1,23 +1,36 @@
+console.log(`NODE_ENV:${process.env.NODE_ENV}`);
+
 const path = require('path');
 const webpack = require('webpack');
 const webpackMerge = require('webpack-merge');
-const HtmlWebpackPlugin = require('html-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const myip = require('my-ip')();
 /**
  * 用户定义
  */
-const port = require('./user.config');
+const { port } = require('./user.config') || {};
 /**
  * 入口文件
  */
-const entry = require('../package').entry;
+
+const {
+	entry = {},
+	getHtmlConfig
+} = require('./temp.config');
 
 const APP_ROOT = process.cwd();
 
-const ENV_IS_DEV = process.env.NODE_ENV || 'development';
+const ENV_IS_DEV = process.env.NODE_ENV === 'development';
 
 const config = {
-	entry,
+	resolve: {// 重定向路径
+		mainFiles: ['index.web', 'index'],
+		modules: [path.resolve(APP_ROOT, 'src'), 'node_modules'],
+		extensions: ['.web.tsx', '.web.ts', '.web.jsx', '.web.js', '.ts', '.tsx', '.js', '.jsx', '.json', '.css', '.less', '.scss'],
+		alias: {
+		}
+	},
+	entry: Object.assign({}, entry),
 	output: {
 		path: path.resolve(APP_ROOT, 'dist'),
 		filename: '[name].js',
@@ -25,52 +38,52 @@ const config = {
 	},
 	module: {
 		rules: [{
-				test: /\.(js|jsx|ts|tsx)?$/,
-				exclude: [
-					/**
+			test: /\.(js|jsx|ts|tsx)?$/,
+			exclude: [
+				/**
 					 * 在node_modules的文件不被babel理会
 					 */
-					path.resolve(APP_ROOT, 'node_modules'),
-				],
-				use: [{
-					loader: 'babel-loader',
-					options: {
-						cacheDirectory: true // 启用编译缓存
-					}
-				}]
-			},
-			{
-				test: /\.(css|scss)$/,
-				use: ['style-loader', 'css-loader', 'sass-loader'],
-				include: [
-					path.resolve(APP_ROOT, "node_modules"),
-					path.resolve(APP_ROOT, "src/")
-				]
-			},
-			{
-				test: /\.less$/,
-				use: [
-					'style-loader',
-					'css-loader',
-					{
-						loader: "less-loader",
-						options: {
-							javascriptEnabled: true
-						}
-					}
-				],
-			},
-			{
-				test: /\.(png|jpg|gif|eot|ttf|woff|woff2|svg)$/,
-				loader: 'url-loader',
+				path.resolve(APP_ROOT, 'node_modules'),
+			],
+			use: [{
+				loader: 'babel-loader',
 				options: {
-					limit: 10000
+					cacheDirectory: true // 启用编译缓存
 				}
-			},
-			{
-				test: /\.html$/i,
-				use: 'html-loader'
+			}]
+		},
+		{
+			test: /\.(css|scss)$/,
+			use: ['style-loader', 'css-loader', 'sass-loader'],
+			include: [
+				path.resolve(APP_ROOT, "node_modules"),
+				path.resolve(APP_ROOT, "src/")
+			]
+		},
+		{
+			test: /\.less$/,
+			use: [
+				'style-loader',
+				'css-loader',
+				{
+					loader: "less-loader",
+					options: {
+						javascriptEnabled: true
+					}
+				}
+			],
+		},
+		{
+			test: /\.(png|jpg|gif|eot|ttf|woff|woff2|svg)$/,
+			loader: 'url-loader',
+			options: {
+				limit: 10000
 			}
+		},
+		{
+			test: /\.html$/i,
+			use: 'html-loader'
+		}
 		]
 	},
 	optimization: {
@@ -84,12 +97,10 @@ const config = {
 		concatenateModules: !ENV_IS_DEV
 	},
 	plugins: [
-		new HtmlWebpackPlugin({
-			title: 'myApp',
-			template: `${APP_ROOT}/src/index.html`,
-		})
+		...getHtmlConfig()
 	]
-}
+};
+
 
 const defaultConfig = {
 	/**
@@ -131,11 +142,11 @@ const defaultConfig = {
 	 * 启用编译缓存
 	 */
 	cache: true
-}
+};
 
 module.exports = {
 	commonConfig: webpackMerge(
 		config,
 		defaultConfig
 	)
-}
+};

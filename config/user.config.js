@@ -1,1 +1,1 @@
-let port = ''; module.exports = port;
+let obj = { port: '', component: '' }; module.exports = obj;
