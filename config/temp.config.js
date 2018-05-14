@@ -54,50 +54,31 @@ const getEntryFile = (dir) => {
 };
 getEntryFile();
 
-process.env.DOC = 'doc';
-
 const getHtmlConfig = () => {
 	let foundScripts;
 	let suffix;
 
-	if (process.env.DOC === 'doc') {
-		foundScripts = glob.sync(`examples/*/*.md`, {});
-		suffix = 'md';
+	if (glob.sync(`temp/*/*.jsx`, {}).length) {
+		foundScripts = glob.sync(`temp/${component ? component : '*'}/*.jsx`, {});
+		suffix = 'jsx';
 	} else {
-		if (glob.sync(`temp/*/*.jsx`, {}).length) {
-			foundScripts = glob.sync(`temp/${component ? component : '*'}/*.jsx`, {});
-			suffix = 'jsx';
-		} else {
-			foundScripts = glob.sync(`temp/${component ? component : '*'}/*.js`, {});
-			suffix = 'js';
-		}
+		foundScripts = glob.sync(`temp/${component ? component : '*'}/*.js`, {});
+		suffix = 'js';
 	}
 
-
 	const arr = [];
-	console.log(foundScripts, suffix);
+
 	foundScripts.forEach(fullpath => {
 		fullpath = upath.normalize(fullpath);
 		let chunk, filename;
-		switch (suffix) {
-			case 'jsx':
-				chunk = fullpath.replace(/temp\//, '').replace(/^(.*)\.jsx$/, '$1');
-				filename = path.join(APP_ROOT, fullpath.replace(/temp\//, 'dist/').replace(/\.jsx/, '.html'));
-				openPage[chunk] = path.join(fullpath.replace(/temp\//, '/').replace(/\.jsx/, '.html'));
-				break;
-			case 'js':
-				chunk = fullpath.replace(/temp\//, '').replace(/^(.*)\.js$/, '$1');
-				filename = path.join(APP_ROOT, fullpath.replace(/temp\//, 'dist/').replace(/\.js/, '.html'));
-				openPage[chunk] = path.join(fullpath.replace(/temp\//, '/').replace(/\.js/, '.html'));
-				break;
-			case 'md':
-				chunk = fullpath.replace(/examples\//, '').replace(/^(.*)\.md$/, '$1');
-				filename = path.join(APP_ROOT, fullpath.replace(/examples\//, 'dist/').replace(/\.md/, '.html'));
-				openPage[chunk] = path.join(fullpath.replace(/teexamplesmp\//, '/').replace(/\.md/, '.html'));
-				console.log(111);
-				break;
-			default:
-				break;
+		if (suffix === 'jsx') {
+			chunk = fullpath.replace(/temp\//, '').replace(/^(.*)\.jsx$/, '$1');
+			filename = path.join(APP_ROOT, fullpath.replace(/temp\//, 'dist/').replace(/\.jsx/, '.html'));
+			openPage[chunk] = path.join(fullpath.replace(/temp\//, '/').replace(/\.jsx/, '.html'));
+		} else {
+			chunk = fullpath.replace(/temp\//, '').replace(/^(.*)\.js$/, '$1');
+			filename = path.join(APP_ROOT, fullpath.replace(/temp\//, 'dist/').replace(/\.js/, '.html'));
+			openPage[chunk] = path.join(fullpath.replace(/temp\//, '/').replace(/\.js/, '.html'));
 		}
 
 		arr.push(
@@ -120,7 +101,7 @@ const getHtmlConfig = () => {
 	);
 	return arr;
 };
-getHtmlConfig();
+
 module.exports = {
 	entry,
 	openPage,

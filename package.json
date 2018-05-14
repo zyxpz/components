@@ -14,8 +14,7 @@
     "prod": "npm run remove && webpack --config ./config/webpack.prod.config.js --color --progress",
     "remove": "rm -rf ./dist",
     "compile": "rm -rf ./lib && babel src --out-dir lib --copy-files --ignore **.test.js,**.md,examples/**",
-    "publish": "npm run compile && npm publish",
-    "doc": "cross-env DOC=doc webpack-dev-server --config ./config/webpack.dev.config.js --color --progress --hot"
+    "publish": "npm run compile && npm publish"
   },
   "entry": {},
   "author": "zyxpz",
@@ -49,7 +48,6 @@
     "postcss-flexbugs-fixes": "^3.3.1",
     "postcss-loader": "^2.1.5",
     "postcss-smart-import": "^0.7.6",
-    "precss": "^3.1.2",
     "prompt": "^1.0.0",
     "style-loader": "^0.21.0",
     "url-loader": "^1.0.1",
