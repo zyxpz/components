@@ -25,6 +25,7 @@
     "react-dom": "^16.3.2"
   },
   "devDependencies": {
+    "atool-doc-md-loader": "^0.2.0",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.3",
