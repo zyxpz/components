@@ -1,1 +1,0 @@
-import React, { Component } from 'react'; import ReactDOM, { render } from 'react-dom'; import { Test } from 'index'; class App extends Component {  constructor(props) {    super(props);  }  render() {    return (      <div>        <Test />      </div>    );  }  }render(  <App />,  document.querySelector('.root'));

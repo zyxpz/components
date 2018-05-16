@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
+  "homepage": "http://",
   "scripts": {
     "dev": "npm run prompt && npm run all",
     "serve": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server --config ./config/webpack.dev.config.js --color --progress --hot",
@@ -15,7 +16,8 @@
     "remove": "rm -rf ./dist",
     "compile": "rm -rf ./lib && babel src --out-dir lib --copy-files --ignore **.test.js,**.md,examples/**",
     "publish": "npm run compile && npm publish",
-    "test": "webpack-dev-server --config ./config/webpack.test.config.js --color --progress --hot"
+    "test": "webpack-dev-server --config ./config/webpack.test.config.js --color --progress --hot",
+    "doc": "webpack-dev-server --config ./config/markdown.config.js --color --progress --hot"
   },
   "entry": {},
   "author": "zyxpz",
@@ -25,7 +27,7 @@
     "react-dom": "^16.3.2"
   },
   "devDependencies": {
-    "atool-doc-md-loader": "^0.2.0",
+    "atool-doc-util": "^0.1.1",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.3",
@@ -35,6 +37,7 @@
     "babel-preset-stage-0": "^6.24.1",
     "cross-env": "^5.1.5",
     "css-loader": "^0.28.11",
+    "ejs": "^2.6.1",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-babel": "^5.0.0",
@@ -46,6 +49,7 @@
     "html-webpack-plugin": "^3.2.0",
     "less": "^3.0.4",
     "less-loader": "^4.1.0",
+    "markdown-ast-loader": "^0.1.4",
     "my-ip": "^1.1.1",
     "postcss-flexbugs-fixes": "^3.3.1",
     "postcss-loader": "^2.1.5",
