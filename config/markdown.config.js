@@ -6,9 +6,13 @@ const path = require('path');
 const upath = require('upath');
 const webpackMerge = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const R = require('ramda');
+const MT = require('mark-twain');
 const atoolDocUtil = require('atool-doc-util');
 const ejs = require('ejs');
-const { commonConfig } = require('./webpack.common.config');
+const {
+	commonConfig
+} = require('./webpack.common.config');
 const pkg = require('../package.json');
 
 /**
@@ -17,6 +21,25 @@ const pkg = require('../package.json');
  * 文件名是有顺序的
  */
 const foundMarkdown = glob.sync(path.join(`${APP_ROOT}/examples`, '*.{js,jsx,html,md}'));
+
+/**
+ * 
+ */
+const isCode = R.compose(R.contains(R.__, ['js', 'jsx', 'javascript']), R.path(['props', 'lang']));
+const isStyle = R.whereEq({
+	type: 'code',
+	props: {
+		lang: 'css'
+	}
+});
+const isHtml = R.whereEq({
+	type: 'code',
+	props: {
+		lang: 'html'
+	}
+});
+const getChildren = R.compose(R.prop('children'), R.defaultTo({}));
+
 
 const config = {
 	mode: 'development',
@@ -33,20 +56,18 @@ const config = {
  * entry
  */
 let entry = {};
-let filename, chunk;
 
 foundMarkdown.forEach(file => {
 	file = upath.normalize(file);
 	const ext = path.extname(file);
-	const name = path.basename(file, ext);
+	const name = `examples/${path.basename(file, ext)}`;
 	const pathWithoutExt = path.join(path.dirname(file), name);
 	if (ext === '.md') {
-		entry[pathWithoutExt] = file;
+		entry[name] = file;
 	}
-	
 });
-
 commonConfig.entry = entry;
+
 commonConfig.output = {
 	path: path.resolve(APP_ROOT, 'examples'),
 	filename: '[name].js',
@@ -54,18 +75,39 @@ commonConfig.output = {
 };
 commonConfig.plugins = [];
 
-const md = glob.sync(path.join(`examples`, '*.{js,jsx,html,md}'));
-
-md.forEach(e => {
+foundMarkdown.forEach(e => {
+	let filename, chunk;
+	const file = returnFile({
+		directory: e
+	});
+	
+	const fileContentTree = MT(file).content;
+	const meta = MT(file).meta;
+	const code = getChildren(fileContentTree.find(isCode));
+	const style = getChildren(fileContentTree.find(isStyle));
+	const html = getChildren(fileContentTree.find(isHtml));
+	
+	/**
+	 * 生成页面
+	 */
+	const rep = `${APP_ROOT}/`;
+	e = e.replace(rep, '');
 	chunk = e.replace(/examples\//, '').replace(/\.md/, '');
 	filename = e.replace(/\.md/, '.html');
-	console.log(e, [chunk], 1111111, filename);
+
 	commonConfig.plugins.push(
 		new HtmlWebpackPlugin({
 			template: `${APP_ROOT}/templates-md/element.ejs`,
 			filename: filename,
-			chunks: [chunk],
-			readme: atoolDocUtil.marked(fs.readFileSync(`${APP_ROOT}/${e}`, 'utf-8'))
+			chunks: [],
+			readme: atoolDocUtil.marked(fs.readFileSync(`${APP_ROOT}/${e}`, 'utf-8')),
+			title: [chunk],
+			scripts: '',
+			data: {
+				code,
+				html,
+				style
+			}
 		})
 	);
 
@@ -91,11 +133,48 @@ commonConfig.plugins.push(
 	})
 );
 
-// ejs.render(fs.readFileSync(`${APP_ROOT}/templates-md/element.ejs`, 'utf-8'), {
-// 	file: {
-// 		title: 'test1111'
-// 	}
-// });
+function returnFile(params, cb) {
+
+	const {
+		directory
+	} = params;
+	/**
+	 * 获取md内容
+	 * 异步
+	 */
+
+	return fs.readFileSync(directory, { encoding: 'utf-8' });
+
+	/**
+	 * 同步
+	 */
+	// fs.readFile(directory, 'utf8', (err, d) => {
+	// 	if (err) {
+	// 		console.log(err);
+	// 	} else {
+	// 		const data = d;
+	// 		/**
+	// 		 * 获取markdown的
+	// 		 * css
+	// 		 * html
+	// 		 * js
+	// 		 */
+	// 		const fileContentTree = MT(d).content;
+	// 		const meta = MT(d).meta;
+	// 		const code = getChildren(fileContentTree.find(isCode));
+	// 		const style = getChildren(fileContentTree.find(isStyle));
+	// 		const html = getChildren(fileContentTree.find(isHtml));
+
+	// 		cb && cb({
+	// 			code,
+	// 			style,
+	// 			html
+	// 		});
+	// 	}
+	// });
+}
+
+
 
 
 // console.log(webpackMerge(
@@ -111,40 +190,23 @@ module.exports = webpackMerge(
 /**
  * 获取文件内容并便利
  */
-// foundMarkdown.forEach(directory => {
+// const fdMd = glob.sync(`${APP_ROOT}/examples/*.md`, {});
+
+// fdMd.forEach(directory => {
 // 	fs.readFile(directory, 'utf8', (e, d) => {
 // 		if (e) {
 // 			console.log(e);
 // 		} else {
 // 			const data = d;
-// 			const newData = JSON.stringify(data);
 // 			/**
 //        * 获取markdown的
 //        * css
 //        * html
 //        * js
 //        */
-// 			const css = newData.match(/(```css.*?)[\s\n]*?(```)/)[0].replace(/```css/, '').replace(/```/, '').replace(/\\n/g, '');
-// 			const html = newData.match(/(```html.*?)[\s\n]*?(```)/)[0].replace(/```html/, '').replace(/```/, '').replace(/\\n/g, '').replace(/\\/g, '');
-// 			const js = newData.match(/(```js.*?)[\s\n]*?(```)/)[0].replace(/```js/, '').replace(/```/, '').replace(/\\n/g, '');
+// 			const fileContentTree = MT(d).content;
 
-// 			dataInput({
-// 				directory,
-// 				type: 'css',
-// 				value: css
-// 			});
-
-// 			dataInput({
-// 				directory,
-// 				type: 'js',
-// 				value: js
-// 			});
-
-// 			dataInput({
-// 				directory,
-// 				type: 'html',
-// 				value: html
-// 			});
+// 			console.log(fileContentTree);
 // 		}
 // 	});
 // });

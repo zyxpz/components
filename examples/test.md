@@ -19,7 +19,6 @@
   <meta content="yes" name="apple-touch-fullscreen"/>
   <meta content="telephone=no,email=no" name="format-detection"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
-  <link rel="stylesheet" href="../lib/css/index.css" />
 </body>
 <div class="root"></div>
 </body>
@@ -27,11 +26,8 @@
 ```
 
 ```js
-import React, { Component } from 'react';
-import ReactDOM, { render } from 'react-dom';
-import { Test } from 'index';
 
-class App extends Component {
+class App extends React.Component {
   constructor(props) {
     super(props);
   }
@@ -39,14 +35,14 @@ class App extends Component {
   render() {
     return(
       <div>
-        <Test />
+        hellow, world
       </div>
     )
   }
   
 }
 
-render(
+ReactDOM.render(
   <App />,
   document.querySelector('.root')
 )
