@@ -1,3 +1,7 @@
+/**
+ * 此为demo
+ * 代码没有优化
+ */
 process.env.NODE_ENV = 'development';
 const APP_ROOT = process.cwd();
 const glob = require('glob');
@@ -21,7 +25,7 @@ const pkg = require('../package.json');
  * 并查找所有的md文件
  * 文件名是有顺序的
  */
-const foundMarkdown = glob.sync(path.join(`${APP_ROOT}/examples`, '*.{js,jsx,html,md}'));
+const foundMarkdown = glob.sync(path.join(`${APP_ROOT}/examples`, '*.md'));
 
 /**
  * 
@@ -60,12 +64,37 @@ let entry = {};
 
 foundMarkdown.forEach(file => {
 	file = upath.normalize(file);
+	const jsFile = returnFile({
+		directory: file
+	});
 	const ext = path.extname(file);
 	const name = `examples/${path.basename(file, ext)}`;
 	const pathWithoutExt = path.join(path.dirname(file), name);
-	if (ext === '.md') {
-		entry[name] = file;
+	const fileContentTree = MT(jsFile).content;
+	const code = getChildren(fileContentTree.find(isCode));
+	const jsPath = file.replace(/md/, 'js');
+
+	if (jsPath.length) {
+		fs.unlink(jsPath);
 	}
+
+	// 创建文件
+	fs.appendFile(jsPath, code, {
+		encoding: 'utf-8'
+	}, (e) => {
+		if (e) {
+			console.log(e);
+		} else {
+			console.log('写入成功');
+		}
+	});
+
+
+
+	if (ext === '.md') {
+		entry[name] = jsPath;
+	}
+
 });
 commonConfig.entry = entry;
 
@@ -81,13 +110,13 @@ foundMarkdown.forEach(e => {
 	const file = returnFile({
 		directory: e
 	});
-	
+
 	const fileContentTree = MT(file).content;
 	const meta = MT(file).meta;
 	const code = getChildren(fileContentTree.find(isCode));
 	const style = getChildren(fileContentTree.find(isStyle));
 	const html = getChildren(fileContentTree.find(isHtml));
-	
+
 	/**
 	 * 生成页面
 	 */
@@ -110,6 +139,14 @@ foundMarkdown.forEach(e => {
 				html,
 				style
 			}
+		}),
+		new webpack.optimize.SplitChunksPlugin({
+			chunks: "all", // initial(初始块)、async(按需加载块)、all(全部块)，默认为all;
+			minSize: 0, // 压缩前的最小模块大小，默认为0
+			minChunks: 1, // 被引用次数，默认为1
+			maxAsyncRequests: 5, // 最大的按需(异步)加载次数，默认为1
+			maxInitialRequests: 3, //  最大的初始化加载次数，默认为1；
+			name: 'commons' // 拆分出来块的名字(Chunk Names)，默认由块名和hash值自动生成；
 		})
 	);
 
@@ -145,7 +182,9 @@ function returnFile(params, cb) {
 	 * 异步
 	 */
 
-	return fs.readFileSync(directory, { encoding: 'utf-8' });
+	return fs.readFileSync(directory, {
+		encoding: 'utf-8'
+	});
 
 	/**
 	 * 同步
