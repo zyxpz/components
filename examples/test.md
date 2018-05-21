@@ -20,13 +20,16 @@
   <meta content="telephone=no,email=no" name="format-detection"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
 </body>
-<div class="root"></div>
+<div class="rootApp"></div>
 </body>
 </html>
 ```
 
 ```js
-
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Test } from 'index';
+console.log(111111)
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -44,7 +47,7 @@ class App extends React.Component {
 
 ReactDOM.render(
   <App />,
-  document.querySelector('.root')
+  document.querySelector('.rootApp')
 )
 ```
 

@@ -4,6 +4,7 @@ const glob = require('glob');
 const fs = require('fs');
 const path = require('path');
 const upath = require('upath');
+const webpack = require('webpack');
 const webpackMerge = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const R = require('ramda');
@@ -46,10 +47,10 @@ const config = {
 	module: {
 		rules: [{
 			test: /\.md$/,
-			loader: 'markdown-ast-loader',
+			loader: 'html-loader!markdown-loader',
 			include: path.join(APP_ROOT, 'examples')
 		}]
-	}
+	},
 };
 
 /**
@@ -92,16 +93,17 @@ foundMarkdown.forEach(e => {
 	 */
 	const rep = `${APP_ROOT}/`;
 	e = e.replace(rep, '');
-	chunk = e.replace(/examples\//, '').replace(/\.md/, '');
+	chunk = e.replace(/\.md/, '');
 	filename = e.replace(/\.md/, '.html');
 
 	commonConfig.plugins.push(
 		new HtmlWebpackPlugin({
 			template: `${APP_ROOT}/templates-md/element.ejs`,
 			filename: filename,
-			chunks: [],
+			chunks: [chunk],
 			readme: atoolDocUtil.marked(fs.readFileSync(`${APP_ROOT}/${e}`, 'utf-8')),
 			title: [chunk],
+			inject: 'body',
 			scripts: '',
 			data: {
 				code,

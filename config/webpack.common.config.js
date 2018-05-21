@@ -110,7 +110,25 @@ const config = {
 		// 原：NoEmitOnErrorsPlugin() - 异常继续执行
 		noEmitOnErrors: true,
 		// 原：ModuleConcatenationPlugin() - 模块串联 - dev模式下回影响antd（比如：Pagination, 和语言有关）
-		concatenateModules: !ENV_IS_DEV
+		concatenateModules: !ENV_IS_DEV,
+		// 原：CommonsChunkPlugin()
+		splitChunks: {
+			chunks: 'async', // initial(初始块)、async(按需加载块)、all(全部块)，默认为all;
+			cacheGroups: {
+				vendor: { // split `node_modules`目录下被打包的代码到 `page/vendor.js && .css` 没找到可打包文件的话，则没有。css需要依赖 `ExtractTextPlugin`
+					test: /node_modules\//,
+					name: 'page/vendor',
+					priority: 10,
+					enforce: true
+				},
+				commons: { // split `src`目录下被打包的代码到`dist/commons.js && .css`
+					test: /src/,
+					name: 'dist/commons',
+					priority: 10,
+					enforce: true
+				}
+			}
+		},
 	},
 	plugins: [
 		...getHtmlConfig()
