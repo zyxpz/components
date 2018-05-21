@@ -39,7 +39,7 @@ class App extends React.Component {
     return(
       <div>
         <Test />
-        <div>1</div>
+        <div>3</div>
       </div>
     )
   }

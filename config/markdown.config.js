@@ -89,6 +89,18 @@ foundMarkdown.forEach(file => {
 		}
 	});
 
+	fs.watch(file,  (event, filename) => {
+		console.log('event is: ' + event);
+		if (filename) {
+			 console.log('filename provided: ' + filename);
+			// readTxt();
+		} else {
+			console.log('filename not provided');
+		}
+	});
+
+	console.log(file + ' 被监听中...');
+
 
 
 	if (ext === '.md') {
