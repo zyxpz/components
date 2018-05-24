@@ -71,12 +71,8 @@ foundMarkdown.forEach(file => {
 	const name = `examples/${path.basename(file, ext)}`;
 	const pathWithoutExt = path.join(path.dirname(file), name);
 	const fileContentTree = MT(jsFile).content;
-	const code = getChildren(fileContentTree.find(isCode));
+	const code = getChildren(fileContentTree.find(isCode)) || '';
 	const jsPath = file.replace(/md/, 'js');
-
-	if (jsPath.length) {
-		fs.unlink(jsPath);
-	}
 
 	// 创建文件
 	fs.appendFile(jsPath, code, {
@@ -85,27 +81,43 @@ foundMarkdown.forEach(file => {
 		if (e) {
 			console.log(e);
 		} else {
-			console.log('写入成功');
+			console.log('ok');
 		}
 	});
 
+	// 监控文件修改
 	fs.watch(file,  (event, filename) => {
-		console.log('event is: ' + event);
 		if (filename) {
-			 console.log('filename provided: ' + filename);
-			// readTxt();
+			 fs.unlink(jsPath);
+			 const jsFile = returnFile({
+				directory: file
+			});
+			const fileContentTree = MT(jsFile).content;
+			const code = getChildren(fileContentTree.find(isCode));
+			 fs.appendFile(jsPath, code, {
+				encoding: 'utf-8'
+			}, (e) => {
+				if (e) {
+					console.log(e);
+				} else {
+					console.log('ok');
+				}
+			});
 		} else {
 			console.log('filename not provided');
 		}
 	});
 
-	console.log(file + ' 被监听中...');
-
-
-
-	if (ext === '.md') {
+	if (ext === '.md' && jsPath.length) {
 		entry[name] = jsPath;
 	}
+
+	// 监控进程关闭
+	process.on('exit', (code) => {
+		if (code === 0) {
+			fs.unlink(jsPath);
+		}
+	});
 
 });
 commonConfig.entry = entry;
